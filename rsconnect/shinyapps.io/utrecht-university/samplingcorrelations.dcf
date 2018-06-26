@@ -1,0 +1,10 @@
+name: samplingcorrelations
+title:
+username:
+account: utrecht-university
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 364287
+bundleId: 1449568
+url: https://utrecht-university.shinyapps.io/samplingcorrelations/
+when: 1530010582.3354
