@@ -19,14 +19,40 @@ library(shiny)
 library(MASS) 
 
 # server design
-server <- function(input, output) {
+server <- function(input, output, session) {
   
-  # First we will create data points with 0 correlation
+  observe(updateSelectInput(session, "true.correlation2", selected = input$true.correlation))
+  observe(updateSelectInput(session, "true.correlation", selected = input$true.correlation2))
+  observe(updateSelectInput(session, "sample.size2", selected = input$sample.size))
+  observe(updateSelectInput(session, "sample.size", selected = input$sample.size2))
+  
   N <- 1000 # population size
-  population <- mvrnorm(n=N,mu=c(0,0),Sigma =matrix(c(1,0,0,1),ncol = 2),empirical = T)
-  # draw samples from bivariate standard normal distribution with 0 covariance.
-
-
+  pop <- reactiveValues(
+    population = NULL
+  )
+  
+  observeEvent(input$true.correlation,{
+    if(input$true.correlation == 0){
+    pop$population <- mvrnorm(n=N,mu=c(5,5),Sigma =matrix(c(1, 0,
+                                                            0, 1),ncol = 2),empirical = T) 
+    } 
+    if(input$true.correlation == 0.1){
+      pop$population <- mvrnorm(n=N,mu=c(5,5),Sigma =matrix(c(1, 0.1,
+                                                              0.1, 1),ncol = 2),empirical = T)
+    }
+    if(input$true.correlation == 0.5){
+      pop$population <- mvrnorm(n=N,mu=c(5,5),Sigma =matrix(c(1, 0.5,
+                                                              0.5, 1),ncol = 2),empirical = T)
+    }
+  })
+ 
+  # if new population is obtained reset sample values
+  observeEvent(input$true.correlation, {
+    sample$correlations = NULL 
+    sample$p.values     = NULL
+    sample$sample       = NULL
+  })
+  
   #n.sample <- 20
   #sample <- sample(x=(1:N), size = n.sample, replace = F)
   
@@ -38,17 +64,32 @@ server <- function(input, output) {
   )
   
 # function to sample with certain sample size and store correlation and p.value  
-observeEvent(input$samplebutton,{
-  sample$sample       <- sample(x=(1:N), size = 20, replace = F)
-    sample$correlations <- c(sample$correlations, as.numeric(cor.test(x = population[sample$sample, 1], 
-                                                                      y = population[sample$sample, 2])$estimate))
-    sample$p.values     <- c(sample$p.values, as.numeric(cor.test(x = population[sample$sample, 1], 
-                                                                  y = population[sample$sample, 2])$p.value))
+observeEvent(input$samplebutton | input$samplebutton2,{
+  if(input$sample.size == 10){
+  sample$sample       <- sample(x=(1:N), size = 10, replace = F)
+  }
+  if(input$sample.size == 30){
+    sample$sample       <- sample(x=(1:N), size = 30, replace = F)
+  }
+  if(input$sample.size == 100){
+    sample$sample       <- sample(x=(1:N), size = 100, replace = F)
+  }
+    sample$correlations <- c(sample$correlations, as.numeric(cor.test(x = pop$population[sample$sample, 1], 
+                                                                      y = pop$population[sample$sample, 2])$estimate))
+    sample$p.values     <- c(sample$p.values, as.numeric(cor.test(x = pop$population[sample$sample, 1], 
+                                                                  y = pop$population[sample$sample, 2])$p.value))
   }
   )
+
+observeEvent(input$sample.size, {
+  sample$correlations = NULL 
+  sample$p.values     = NULL
+  sample$sample       = NULL
+})
+
   
 # reset sample history
-observeEvent(input$reset, {
+observeEvent(input$reset | input$reset2, {
   sample$correlations = NULL 
   sample$p.values     = NULL
   sample$sample       = NULL
@@ -58,16 +99,36 @@ observeEvent(input$reset, {
   
   # plot for correlation tab. 
   output$corplot <- renderPlot({
+    if(length(pop$population) > 0){
     # create a scatterplot for population
-    plot(population[,1],population[,2],bty="n", ylab = "y", xlab = "x", pch=19)
+    plot(pop$population[,1],pop$population[,2],bty="n", ylab = "y", xlab = "x", pch=19,
+         xlim = c(0, 10), ylim = c(0, 10))
     # color the sampled points red
     if(length(sample$correlations) > 0){
-    points(population[sample$sample,], col = "red", pch =19, cex=1.7)
-    abline(lm(population[sample$sample,2] ~ 1 + population[sample$sample,1]), col= "red")
-    legend("topright", bty = "n", c(paste0("Cor = ",round(cor.test(x = population[sample$sample, 1], 
-                                                                   y = population[sample$sample, 2])$estimate,2)),
-                                    paste0("p = ",round(cor.test(x = population[sample$sample, 1], 
-                                                                 y = population[sample$sample, 2])$p.value,2))))
+    points(pop$population[sample$sample,], col = "red", pch =19, cex=1.7)
+    abline(lm(pop$population[sample$sample,2] ~ 1 + pop$population[sample$sample,1]), col= "red")
+    legend("topright", bty = "n", c(paste0("r = ",round(cor.test(x = pop$population[sample$sample, 1], 
+                                                                   y = pop$population[sample$sample, 2])$estimate,3))))
+    }
+    }
+  }
+  )
+  
+  # plot for correlation tab. 
+  output$corplot2 <- renderPlot({
+    if(length(pop$population) > 0){
+      # create a scatterplot for population
+      plot(pop$population[,1],pop$population[,2],bty="n", ylab = "y", xlab = "x", pch=19,
+           xlim = c(0, 10), ylim = c(0, 10))
+      # color the sampled points red
+      if(length(sample$correlations) > 0){
+        points(pop$population[sample$sample,], col = "red", pch =19, cex=1.7)
+        abline(lm(pop$population[sample$sample,2] ~ 1 + pop$population[sample$sample,1]), col= "red")
+        legend("topright", bty = "n", c(paste0("r = ",round(cor.test(x = pop$population[sample$sample, 1], 
+                                                                     y = pop$population[sample$sample, 2])$estimate,3)),
+                                        paste0("p = ",round(cor.test(x = pop$population[sample$sample, 1], 
+                                                                     y = pop$population[sample$sample, 2])$p.value,3))))
+      }
     }
   }
   )
@@ -95,6 +156,34 @@ observeEvent(input$reset, {
              hist(plot=F,sample$correlations, 
                   breaks = seq(-1,1,by=.1))$counts[which(hist(plot=F, sample$correlations[length(sample$correlations)], breaks = seq(-1,1,by=.1))$counts==1)]-1)
     polygon(x = xx, y = yy, col="red", density=100, angle = 0, border = "black")
+    }
+  }
+  )
+  
+  
+  output$corhist2 <- renderPlot({
+    # create a histogram for all sampled correlations
+    if(length(sample$correlations) > 0){
+      hist(sample$correlations, xlim = c(-1,1),breaks = seq(-1,1,by=.1), xlab = "Histogram of correlations of the drawn samples",
+           main = "")
+      
+      xx <- c(seq(from = seq(-1,1,by=.1)[which(hist(plot=F,sample$correlations[length(sample$correlations)], 
+                                                    breaks = seq(-1,1,by=.1))$counts == 1)],
+                  to = seq(-1,1,by=.1)[which(hist(plot=F,sample$correlations[length(sample$correlations)], 
+                                                  breaks = seq(-1,1,by=.1))$counts == 1)+1],by=.1),
+              seq(from = seq(-1,1,by=.1)[which(hist(plot=F,sample$correlations[length(sample$correlations)], 
+                                                    breaks = seq(-1,1,by=.1))$counts == 1)],
+                  to = seq(-1,1,by=.1)[which(hist(plot=F,sample$correlations[length(sample$correlations)], 
+                                                  breaks = seq(-1,1,by=.1))$counts == 1)+1],by=0.1)[c(2,1)])
+      yy <-  c(hist(plot=F,sample$correlations, 
+                    breaks = seq(-1,1,by=.1))$counts[which(hist(plot=F, sample$correlations[length(sample$correlations)], breaks = seq(-1,1,by=.1))$counts==1)],
+               hist(plot=F,sample$correlations, 
+                    breaks = seq(-1,1,by=.1))$counts[which(hist(plot=F, sample$correlations[length(sample$correlations)], breaks = seq(-1,1,by=.1))$counts==1)],
+               hist(plot=F,sample$correlations, 
+                    breaks = seq(-1,1,by=.1))$counts[which(hist(plot=F, sample$correlations[length(sample$correlations)], breaks = seq(-1,1,by=.1))$counts==1)]-1,
+               hist(plot=F,sample$correlations, 
+                    breaks = seq(-1,1,by=.1))$counts[which(hist(plot=F, sample$correlations[length(sample$correlations)], breaks = seq(-1,1,by=.1))$counts==1)]-1)
+      polygon(x = xx, y = yy, col="red", density=100, angle = 0, border = "black")
     }
   }
   )
