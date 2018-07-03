@@ -36,9 +36,17 @@ server <- function(input, output, session) {
     pop$population <- mvrnorm(n=N,mu=c(5,5),Sigma =matrix(c(1, 0,
                                                             0, 1),ncol = 2),empirical = T) 
     } 
-    if(input$true.correlation == 0.1){
-      pop$population <- mvrnorm(n=N,mu=c(5,5),Sigma =matrix(c(1, 0.1,
-                                                              0.1, 1),ncol = 2),empirical = T)
+    if(input$true.correlation == 0.25){
+      pop$population <- mvrnorm(n=N,mu=c(5,5),Sigma =matrix(c(1, 0.25,
+                                                              0.25, 1),ncol = 2),empirical = T)
+    }
+    if(input$true.correlation == -0.25){
+      pop$population <- mvrnorm(n=N,mu=c(5,5),Sigma =matrix(c(1, -0.25,
+                                                              -0.25, 1),ncol = 2),empirical = T)
+    }
+    if(input$true.correlation == -0.5){
+      pop$population <- mvrnorm(n=N,mu=c(5,5),Sigma =matrix(c(1, -0.5,
+                                                              -0.5, 1),ncol = 2),empirical = T)
     }
     if(input$true.correlation == 0.5){
       pop$population <- mvrnorm(n=N,mu=c(5,5),Sigma =matrix(c(1, 0.5,

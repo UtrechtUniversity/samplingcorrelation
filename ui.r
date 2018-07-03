@@ -127,7 +127,7 @@ dashboardBody(
                     column(width = 2,align = "center",
                            selectInput("sample.size", "Sample size",c(10, 30, 100), 10)),
                     column(width = 2,align = "center",
-                           selectInput("true.correlation", "True correlation", c(0, 0.1, 0.5), 0)),
+                           selectInput("true.correlation", "True correlation", c(0, 0.25, -0.25, 0.5, -0.5), 0)),
                     column(width = 2,align = "center",
                            actionButton("samplebutton", "Sample")), # action button that allows the previous point to be deleted 
                     column(width = 2,align = "center", 
@@ -147,7 +147,7 @@ dashboardBody(
                     column(width = 2,align = "center",
                            selectInput("sample.size2", "Sample size",c(10, 30, 100), 10)),
                     column(width = 2,align = "center",
-                           selectInput("true.correlation2", "True correlation", c(0, 0.1, 0.5), 0)),
+                           selectInput("true.correlation2", "True correlation", c(0, 0.25, -0.25, 0.5, -0.5), 0)),
                     column(width = 2,align = "center",
                            actionButton("samplebutton2", "Sample")), # action button that allows the previous point to be deleted 
                     column(width = 2,align = "center", 
