@@ -25,24 +25,24 @@ dashboardSidebar(width = 350,
                              menuItem("Test Correlation", tabName = "tab2"),
                              menuItem("Disclaimer", tabName = "Disclaimer"), 
                              HTML("<br><br><br><br><br><br><br><br><br><br><br><br><br><br>"), 
-                             img(src= "logo.png", align = "left"),
                              HTML("<br><br><br><br><br><br><br>"), 
-                             div("Shiny app by",
+                             div(" -  Shiny app by",
                                  a(href="https://www.uu.nl/staff/dveen",
                                    target = "_blank",
-                                   "Duco Veen"),align="right", style = "font-size: 10pt"),
+                                   "Duco Veen"),align="left", style = "font-size: 10pt"),
                              
-                             div("Base R code by",
+                             div(" -  Base R code by",
                                  a(href="https://www.uu.nl/staff/dveen",target="_blank",
-                                   "Duco Veen"),align="right", style = "font-size: 10pt"),
+                                   "Duco Veen"),align="left", style = "font-size: 10pt"),
                              
-                             div("Base Layout by",
+                             div(" -  Base Layout by",
                                  a(href="https://www.uu.nl/medewerkers/KMLek/0",target="_blank",
-                                   "Kimberley Lek"),align="right", style = "font-size: 10pt"),
+                                   "Kimberley Lek"),align="left", style = "font-size: 10pt"),
                              
-                             div("Shiny source files:",
+                             div(" -  Shiny source files:",
                                  a(href="https://github.com/EducationalShinyUU/samplingcorrelation",
-                                   target="_blank","GitHub"),align="right", style = "font-size: 10pt")
+                                   target="_blank","GitHub"),align="left", style = "font-size: 10pt"),
+                             img(src= "logo.png", align = "bottom")
                              ) #end sidebarMenu
                  ), #end dashboardsidebar
 dashboardBody(
